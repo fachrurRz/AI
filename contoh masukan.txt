@@ -1,0 +1,13 @@
+TURN 0
+PLAYER 4
+P0 1306382032 Bomb:1/1 Range:2 Active 10
+P1 1306382032 Bomb:0/1 Range:3 Dead 0
+P2 1306382032 Bomb:1/1 Range:2 Offline 0
+P3 1306382032 Bomb:0/1 Range:2 Active 200
+BOARD 5 7
+[ ][ ### ][ ][ ][ ][ XXX ][ ]
+[ F2 ][ ### ][ XBX ][ ### ][ ][ ### ][ ]
+[ F2 ][F2;+B][ XXX ][ ][ XXX ][ XPX ][ XXX ]
+[ F2 ][ ### ][ ][ ### ][ ][ ### ][ ]
+[ F2 ][ ][ B25 ][ ][ ][ ][ 2;3 ]
+END
