@@ -4,27 +4,168 @@ import java.io.*;
 public class AI_1506689143_Rozi {
 
 	protected final String PLAYER = "Player";
-	protected final String NPM = "1506689143";
+	protected final String NPM = "AI_1506689143_Rozi";
 	protected final String ENEMY = "Enemy";
 	protected final String BOMB = "Bomb";
-	protected final String FLARE = "Flare";
+	protected final String FLARE = "DOWNare";
 	protected final String POWER_B = "Power Up Bomb";
 	protected final String POWER_P = "Power Up Power";
 	protected final String UNDETRUCTIBLE_WALL = "Undetructible_Wall";
 	protected final String DETRUCTIBLE_WALL = "Detructible_Wall";
 	protected final String LAND = "Land";
 
-	protected int playerIndex;
 
+
+	protected final String MOVE_UP = ">> MOVE UP";
+	protected final String MOVE_LEFT = ">> MOVE LEFT";
+	protected final String MOVE_DOWN = ">> MOVE DOWN";
+	protected final String MOVE_RIGHT = ">> MOVE RIGHT";
+	protected final String DROP_BOMB = ">> DROP BOMB";
+	protected final String STAY = ">> STAY";
+	
+
+
+	protected int playerIndex = 0;
+	
+
+
+	class GameProcess {
+		private Map map;
+		private String output;
+
+
+		public GameProcess(Map map) {
+			this.map = map;
+
+			this.output = "";
+		}
+
+		public void start() {
+
+			int y = this.map.playerY;
+			int x = this.map.playerX;
+
+			Node[][] tile = map.getObjects();
+
+			int fp_atas = 0;
+			int fp_kiri = 0;
+			int fp_bawah = 0;
+			int fp_kanan = 0;
+
+			/**
+			 * looping Atas
+			 */
+			for (int i = y; i >= 0; i--) {
+				int fp = 0;
+				for (int j = 0; j < tile[i][x].node.size(); j++ ) {
+					fp += this.fitnessFunction(tile[i][x].node);
+				}
+				if (fp <= 0) {
+					fp_atas = -10;
+					break;
+				}else {
+					fp_atas += fp;
+				}
+			}
+
+			/**
+			 * looping Kiri
+			 */
+			for (int i = x; i >= 0; i--) {
+				int fp = 0;
+				for (int j = 0; j < tile[y][i].node.size(); j++ ) {
+					fp += this.fitnessFunction(tile[y][i].node);
+				}
+				if (fp <= 0) {
+					fp_kiri = -10;
+					break;
+				}else {
+					fp_kiri += fp;
+				}
+			}
+
+
+			/**
+			 * looping Bawah
+			 */
+			for (int i = y; i < tile.length; i++) {
+				int fp = 0;
+				for (int j = 0; j < tile[i][x].node.size(); j++ ) {
+					fp += this.fitnessFunction(tile[i][x].node);					
+				}
+				if (fp <= 0) {
+					fp_bawah = -10;
+					break;
+				}else {
+					fp_bawah += fp;
+				}
+			}
+
+
+			/**
+			 * looping Kanan
+			 */
+			for (int i = x; i < tile[y].length; i++) {
+				int fp = 0;
+				for (int j = 0; j < tile[y][i].node.size(); j++ ) {
+					fp += this.fitnessFunction(tile[y][i].node);
+				}
+				if (fp <= 0) {
+					fp_kanan = -10;
+					break;
+				}else {
+					fp_kanan += fp;
+				}
+			}
+
+			int max = Math.max(fp_atas, Math.max(fp_kiri, Math.max(fp_bawah, fp_kanan)));
+
+			if (fp_atas == max) {
+				this.output = MOVE_UP;
+			}else if (fp_kiri == max) {
+				this.output = MOVE_LEFT;
+			}else if (fp_bawah == max) {
+				this.output = MOVE_DOWN;
+			}else {
+				this.output = MOVE_RIGHT;
+			}
+		}
+
+
+		public int fitnessFunction(ArrayList<GameObject> object) {
+			int fp = 0;
+			for (int i = 0; i < object.size() ; i++ ) {
+				String type = object.get(i).getType();
+
+				if (type.equals(BOMB)) {
+					fp -= 10;
+				} else if (type.equals(FLARE)) {
+					fp -= 5;
+				} 
+			}
+
+			return fp;
+		}
+
+		public String getOutput() {
+			return this.output;
+		}
+	}
 	class Map {
 		private Node[][] objects;
 		private String[] map;
 		private Player[] players;
+		private ArrayList<DestructibleWall> detructibleWalls;
+		private ArrayList<GameObject> powerUps; 
+		protected int playerY = 0;
+		protected int playerX = 0;
 
 		public Map(String[] map, Player[] players, int row, int column) {
 			this.map = map;
 			this.objects = new Node[row][column];
 			this.players = players;
+			this.detructibleWalls = new ArrayList<DestructibleWall>();
+			this.powerUps = new ArrayList<GameObject>();
 		}
 
 		public void render() {
@@ -85,6 +226,8 @@ public class AI_1506689143_Rozi {
 						players[i].setType(PLAYER);
 						players[i].setY(y);
 						players[i].setX(x);
+						this.playerY = y;
+						this.playerX = x;
 
 						return players[i];
 					} else if ( i == index ) {
@@ -117,26 +260,35 @@ public class AI_1506689143_Rozi {
 			} else if (type.equals("XXX")) {
 				
 				String powerUpInfo = "None";
-				return new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				DestructibleWall wall =  new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				this.detructibleWalls.add(wall);
+				return wall;
 
 			} else if (type.equals("XBX")) {
 
 				String powerUpInfo = "Bomb";
-				return new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				DestructibleWall wall =  new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				this.detructibleWalls.add(wall);
+				return wall;
 
 			} else if (type.equals("XPX")) {
 
 				String powerUpInfo = "Power";
-				return new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				DestructibleWall wall =  new DestructibleWall(DETRUCTIBLE_WALL, y, x, false, type, powerUpInfo);
+				this.detructibleWalls.add(wall);
+				return wall;
 
 			} else if (type.equals("+B")) {
 
-				return new GameObject(POWER_B, y, x, true, type);
+				GameObject powerUp = new GameObject(POWER_B, y, x, true, type);
+				this.powerUps.add(powerUp);
+				return powerUp;
 
 			} else if (type.equals("+P")) {
 
-				return new GameObject(POWER_P, y, x, true, type);
-
+				GameObject powerUp = new GameObject(POWER_B, y, x, true, type);
+				this.powerUps.add(powerUp);
+				return powerUp;
 			} else {
 				return null;
 			} 
@@ -153,6 +305,14 @@ public class AI_1506689143_Rozi {
 
 		public void setObjects(Node[][] objects) {
 			this.objects = objects;
+		}
+
+		public ArrayList<DestructibleWall> getWalls(){
+			return this.detructibleWalls;
+		}
+
+		public ArrayList<GameObject> getPowerUps(){
+			return this.powerUps;
 		}
 
 	}
@@ -312,7 +472,7 @@ public class AI_1506689143_Rozi {
 
 		@Override
 		public String toString() {
-			return this.getName() + " status " + this.getStatus(); 
+			return this.getType() + " status " + this.getStatus(); 
 		}
 	}
 
@@ -471,13 +631,17 @@ public class AI_1506689143_Rozi {
 					}
 				}
 
+				GameProcess game = ai.new GameProcess(map);
+				game.start();
+				System.out.println(game.getOutput());
+
 
 
 
 			}
 
-		} finally {
-
+		} finally 
+		{
 			bf.close();
 		}
 

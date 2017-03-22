@@ -53,7 +53,7 @@ public class Main
 			System.out.println("  java Server/Main <map> <classPath> <player1> <player2> ...");
 			System.out.println();
 			System.out.println("Example:");
-			System.out.println("  java Server/Main defaultmap.txt ./ ContohAI1 ContohAI2");
+			System.out.println("  java Server/Main defaultmap.txt AI/ ContohAI1 ContohAI2");
 			System.out.println("  (Compile `ContohAI1.java` and `ContohAI2.java` first!)");
 			System.out.println();
 			System.out.println("Where:");

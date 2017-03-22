@@ -17,9 +17,8 @@ Where:
 =========
 Objective
 =========
-Miliki poin terbanyak saat game berakhir. Game berakhir jika:
-1) At most satu player yang masih active (belum mati dan belum offline)
-2) Sudah lewat 1000 turns
+Jadilah last man standing. ATAU jika hal tersebut tidak terjadi
+dalam 1000 turns, jadilah pemain yang memiliki poin terbanyak.
 
 ================
 Breakdown points

@@ -7,12 +7,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 import javax.swing.plaf.synth.SynthSeparatorUI;
 
 public class GameMachine
 {
-	public static final int TURN_TIME_LIMIT_MS = 1200;
 	public static final int TURN_LIMIT = 1000;
 	
 	public static final int POINTS_DESTROY_WALL = 10;
@@ -25,6 +25,7 @@ public class GameMachine
 	public static String[] playerNames = null;
 	public static String[] playerMoves = null;
 	public static HashMap<String,Integer> playerIndexMap = null;
+	public static ReentrantLock lock = null;
 	
 	// Board/map contents
 	public static int boardHeight = 0;
@@ -52,11 +53,12 @@ public class GameMachine
 	 * Initiate the game machine to start a new game.
 	 * @param numberOfPlayer - number of players competing
 	 */
-	public static void initiate(int numberOfPlayer, String[] playerNames, String boardMap) {
-		// Prepare player data
+	public static void initiate(int numberOfPlayer, String[] playerNames, String boardMap) {   
+		// Prepare player data and lock
+    GameMachine.lock = new ReentrantLock();
 		GameMachine.playerNames = playerNames.clone();
 		GameMachine.numberOfPlayer = numberOfPlayer;
-		
+    
 		playerMoves = new String[numberOfPlayer];
 		playerIndexMap = new HashMap<String,Integer>();
 		playerBombsRemaining = new int[numberOfPlayer];
@@ -159,13 +161,12 @@ public class GameMachine
 	 */
 	public static void run() {
 		GameMachine.isGameRunning = true;
-		
+  		
 		while (true) {
 			System.out.println("-----------------------");
 			System.out.println("ACTION " + turn);
 			
 			boolean allPlayerHasMoved = false;
-			long turnStartTimestamp = System.currentTimeMillis();
 			while (!allPlayerHasMoved) {
 				// Wait until all player has moved
 				allPlayerHasMoved = true;
@@ -173,18 +174,6 @@ public class GameMachine
 					if (playerMoves[i] == null && isPlayerConnected[i]) {
 						allPlayerHasMoved = false;
 					}
-				}
-				
-				// Check if turn limit expires
-				// Any player that has not move will "STAY"
-				long turnTimeElapsedMs = System.currentTimeMillis() - turnStartTimestamp;
-				if (turnTimeElapsedMs > TURN_TIME_LIMIT_MS) {
-					for (int i = 0; i < numberOfPlayer; i++) {
-						if (playerMoves[i] == null) {
-							playerMoves[i] = "TIMEOUT";
-						}
-					}
-					allPlayerHasMoved = true;
 				}
 			}
 			
@@ -249,6 +238,15 @@ public class GameMachine
 		else {
 			return false;
 		}
+	}
+	
+	public static void acquireLock() {
+		while (GameMachine.lock == null) {}
+		GameMachine.lock.lock();
+	}
+	
+	public static void releaseLock() {
+		GameMachine.lock.unlock();
 	}
 	
 	/**

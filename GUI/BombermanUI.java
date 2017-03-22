@@ -55,7 +55,7 @@ public class BombermanUI extends Application {
 	// Map buat file imagenya
 	public static final HashMap<String, Image> imageMap = new HashMap<String,Image>();
 
-	public static final int DELAY = 250;
+	public static final int DELAY = 200;
 
 	public static double screenWidth;
 	public static double screenHeight;
@@ -361,31 +361,19 @@ public class BombermanUI extends Application {
 			}
 
 			if (countAlive == 1) {
-				Text playerActionText = new Text("Congratulations PlayerGUI " + listOfPlayerGUIS.get(setOfHighestAlive.get(0)).getPlayerName() + "\nWINS THE GAME" );
+				Text playerActionText = new Text("Congratulations\n" + listOfPlayerGUIS.get(setOfHighestAlive.get(0)).getPlayerName() + "\nWINS THE GAME" );
 				playerActionText.setFont(Font.font(FONT_FAMILY, screenHeight/RIGHT_PANE_ACTION_TEXT_SCALE));
 				rightPane.getChildren().add(playerActionText);
 			}
 
-			else if (countAlive == 0) {
+			else {
 				String winnerPlayer = "";
 				for (int j = 0; j < setOfHighest.size(); j++) {
 					winnerPlayer += " " + listOfPlayerGUIS.get(setOfHighest.get(j)).getPlayerName();
 				}
 
-				Text playerActionText = new Text("Congratulations PlayerGUI " + winnerPlayer + "\nWIN THE GAME" );
+				Text playerActionText = new Text("Congratulations\n" + winnerPlayer + "\nWIN THE GAME" );
 				playerActionText.setFont(Font.font(FONT_FAMILY, screenHeight/RIGHT_PANE_ACTION_TEXT_SCALE));
-				rightPane.getChildren().add(playerActionText);
-			}
-
-			// More than 1
-			else {
-				String winnerPlayer = "";
-				for (int j = 0; j < setOfHighestAlive.size(); j++) {
-					winnerPlayer += " " + listOfPlayerGUIS.get(setOfHighestAlive.get(j)).getPlayerName();
-				}
-
-				Text playerActionText = new Text("Congratulations PlayerGUI " + winnerPlayer + "\nWIN THE GAME" );
-				playerActionText.setFont(Font.font(FONT_FAMILY, 12));
 				rightPane.getChildren().add(playerActionText);
 			}
 		}
