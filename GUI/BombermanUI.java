@@ -55,7 +55,7 @@ public class BombermanUI extends Application {
 	// Map buat file imagenya
 	public static final HashMap<String, Image> imageMap = new HashMap<String,Image>();
 
-	public static final int DELAY = 200;
+	public static final int DELAY = 250;
 
 	public static double screenWidth;
 	public static double screenHeight;

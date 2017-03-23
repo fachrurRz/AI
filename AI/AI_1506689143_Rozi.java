@@ -14,6 +14,9 @@ public class AI_1506689143_Rozi {
 	protected final String DETRUCTIBLE_WALL = "Detructible_Wall";
 	protected final String LAND = "Land";
 
+	protected final String DANGER = "Danger";
+	protected final String SAFE = "Safe";
+	protected final String ARRIVE = "Arrive";
 
 
 	protected final String MOVE_UP = ">> MOVE UP";
@@ -22,129 +25,376 @@ public class AI_1506689143_Rozi {
 	protected final String MOVE_RIGHT = ">> MOVE RIGHT";
 	protected final String DROP_BOMB = ">> DROP BOMB";
 	protected final String STAY = ">> STAY";
+
+	protected final int MAX = 9999;
 	
 
-
+	protected String condition = SAFE;
 	protected int playerIndex = 0;
+	protected String lastMove = STAY;
+
+	protected int turn = 0;
 	
 
 
 	class GameProcess {
 		private Map map;
 		private String output;
-
+		private int y;
+		private int x;
 
 		public GameProcess(Map map) {
 			this.map = map;
-
-			this.output = "";
+			this.output = STAY;
+			y = this.map.playerY;
+			x = this.map.playerX;
 		}
 
 		public void start() {
 
-			int y = this.map.playerY;
-			int x = this.map.playerX;
 
-			Node[][] tile = map.getObjects();
+			Node[][] tile = this.map.getObjects();
+			GameObject wall = this.nearestWall(this.map.getWalls());
+			GameObject powerUp = this.nearestPowerUp(this.map.getPowerUps());
 
+			int fp = this.fitnessFunction(tile, y, x, 0);
+			if (fp < 0) {
+				if (isValidMove(y-1, x)) {
+					int fp_atas = this.fitnessFunction(tile, y-1, x, 3);
+					if (fp_atas >= 0) {
+						this.output = MOVE_UP;
+						return;
+					}
+					
+				}
+				if (isValidMove(y, x-1)) {
+					int fp_kiri = this.fitnessFunction(tile, y, x-1, 4);
+					if (fp_kiri >= 0) {
+						this.output = MOVE_LEFT;
+						return;
+					}
+				}
+
+				if (isValidMove(y+1, x)) {
+					int fp_bawah = this.fitnessFunction(tile, y+1, x, 1);
+					if (fp_bawah >=  0) {
+						this.output = MOVE_DOWN;
+						return;
+					}
+				}
+
+				if (isValidMove(y, x+1)) {
+					int fp_kanan = this.fitnessFunction(tile, y, x+1, 2);
+					if (fp_kanan >= 0) {
+						this.output = MOVE_RIGHT;
+						return;
+					}
+				}
+
+			} else {
+
+
+				if (turn == 0) {
+
+					String tempOutput = this.moveToTarget(wall);
+					if (condition == ARRIVE) {
+						turn = 1;
+						condition = SAFE;
+					} else {
+						this.output = this.moveToTarget(wall);
+					}
+
+					return;
+
+				} else if (turn == 1) {
+
+					int fp_atas = 0;
+					int fp_kiri = 0;
+					int fp_bawah = 0;
+					int fp_kanan = 0;
+					if (isValidMove(y-1, x)) {
+						fp_atas = this.fitnessFunction(tile, y-1, x, 3);
+
+					}
+					if (isValidMove(y, x-1)) {
+						fp_kiri = this.fitnessFunction(tile, y, x-1, 4);
+					}
+
+					if (isValidMove(y+1, x)) {
+						fp_bawah = this.fitnessFunction(tile, y+1, x, 1);
+					}
+
+					if (isValidMove(y, x+1)) {
+						fp_kanan = this.fitnessFunction(tile, y, x+1, 2);
+					}
+
+					if ((fp_atas + fp_kiri + fp_bawah + fp_kanan) < 0) {
+						this.output = STAY;
+						return;
+					} else {
+						this.output = DROP_BOMB;
+						turn = 0;
+						return;
+					}
+
+				}
+			}
+
+
+
+			
+		}
+
+
+		public int fitnessFunction(Node[][] tile, int y, int x, int except) {
 			int fp_atas = 0;
 			int fp_kiri = 0;
 			int fp_bawah = 0;
 			int fp_kanan = 0;
 
-			/**
-			 * looping Atas
-			 */
-			for (int i = y; i >= 0; i--) {
-				int fp = 0;
-				for (int j = 0; j < tile[i][x].node.size(); j++ ) {
-					fp += this.fitnessFunction(tile[i][x].node);
-				}
-				if (fp <= 0) {
-					fp_atas = -10;
-					break;
-				}else {
-					fp_atas += fp;
-				}
-			}
 
-			/**
-			 * looping Kiri
-			 */
-			for (int i = x; i >= 0; i--) {
-				int fp = 0;
-				for (int j = 0; j < tile[y][i].node.size(); j++ ) {
-					fp += this.fitnessFunction(tile[y][i].node);
+			if (except != 1) {
+
+				/**
+				 * looping Atas
+				 */
+				for (int i = y; i >= 0; i--) {
+					int fp = 0;
+					for (int j = 0; j < tile[i][x].node.size(); j++ ) {
+						fp += this.fitnessCondition(tile[i][x].node, Math.abs(y-i));
+					}
+
+					if (fp != 0) {
+						fp_atas = fp;
+						break;
+					}
 				}
-				if (fp <= 0) {
-					fp_kiri = -10;
-					break;
-				}else {
-					fp_kiri += fp;
-				}
+
 			}
 
 
-			/**
-			 * looping Bawah
-			 */
-			for (int i = y; i < tile.length; i++) {
-				int fp = 0;
-				for (int j = 0; j < tile[i][x].node.size(); j++ ) {
-					fp += this.fitnessFunction(tile[i][x].node);					
+			if (except != 2) {
+				
+				/**
+				 * looping Kiri
+				 */
+				for (int i = x; i >= 0; i--) {
+					int fp = 0;
+					for (int j = 0; j < tile[y][i].node.size(); j++ ) {
+						fp += this.fitnessCondition(tile[y][i].node, Math.abs(x-i));
+					}
+
+					if (fp != 0) {
+						fp_kiri = fp;
+						break;
+					}
 				}
-				if (fp <= 0) {
-					fp_bawah = -10;
-					break;
-				}else {
-					fp_bawah += fp;
+
+			}
+
+			if (except != 3) {
+				/**
+				 * looping Bawah
+				 */
+				for (int i = y; i < tile.length; i++) {
+					int fp = 0;
+					for (int j = 0; j < tile[i][x].node.size(); j++ ) {
+						fp += this.fitnessCondition(tile[i][x].node, Math.abs(y-i));					
+					}
+					if (fp != 0) {
+						fp_bawah = fp;
+						break;
+					}
+				}
+
+			}
+
+			if (except != 4) {
+				/**
+				 * looping Kanan
+				 */
+				for (int i = x; i < tile[y].length; i++) {
+					int fp = 0;
+					for (int j = 0; j < tile[y][i].node.size(); j++ ) {
+						fp += this.fitnessCondition(tile[y][i].node, Math.abs(x-i));
+					}
+					if (fp != 0) {
+						fp_kanan = fp;
+						break;
+					}
 				}
 			}
 
-
-			/**
-			 * looping Kanan
-			 */
-			for (int i = x; i < tile[y].length; i++) {
-				int fp = 0;
-				for (int j = 0; j < tile[y][i].node.size(); j++ ) {
-					fp += this.fitnessFunction(tile[y][i].node);
-				}
-				if (fp <= 0) {
-					fp_kanan = -10;
-					break;
-				}else {
-					fp_kanan += fp;
-				}
-			}
-
-			int max = Math.max(fp_atas, Math.max(fp_kiri, Math.max(fp_bawah, fp_kanan)));
-
-			if (fp_atas == max) {
-				this.output = MOVE_UP;
-			}else if (fp_kiri == max) {
-				this.output = MOVE_LEFT;
-			}else if (fp_bawah == max) {
-				this.output = MOVE_DOWN;
-			}else {
-				this.output = MOVE_RIGHT;
-			}
+			return fp_atas + fp_kiri + fp_bawah + fp_kanan;
 		}
 
 
-		public int fitnessFunction(ArrayList<GameObject> object) {
+		public int fitnessCondition(ArrayList<GameObject> object, int range) {
 			int fp = 0;
+			
 			for (int i = 0; i < object.size() ; i++ ) {
 				String type = object.get(i).getType();
-
 				if (type.equals(BOMB)) {
-					fp -= 10;
+					Bomb bomb = (Bomb)object.get(i);
+					int bombTime = bomb.getBombTime();
+					int bombPower = bomb.getBombPower();
+					int inRange = Math.abs(bombPower - range) + 2;
+					if (bombTime > inRange) {
+						// Safe
+						fp = -5;
+					} else if (bombTime == inRange) {
+						fp = -5;						
+					} else {
+						fp = -5;
+						condition = DANGER;
+					}
+
 				} else if (type.equals(FLARE)) {
-					fp -= 5;
-				} 
+					fp = -5;
+				} else if (type.equals(DETRUCTIBLE_WALL) || type.equals(UNDETRUCTIBLE_WALL)) {
+					fp += 1;
+				}
 			}
 
 			return fp;
+		}
+
+		public boolean isValidMove(int y, int x) {
+			if (y < 0 || y >= this.map.getObjects().length || x < 0 || x >= this.map.getObjects()[0].length ) {
+				return false;
+			}
+
+			for (int i = 0; i < this.map.getObjects()[y][x].node.size() ; i++ ) {
+				
+				if (this.map.getObjects()[y][x].node.get(i).getType().equals(DETRUCTIBLE_WALL)) {
+					condition = ARRIVE;
+					return false;
+				}
+
+				if (!this.map.getObjects()[y][x].node.get(i).isPassable()) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public String moveToTarget(GameObject target) {
+
+			int fp_atas = MAX;
+			int fp_kiri = MAX;
+			int fp_bawah = MAX;
+			int fp_kanan = MAX;
+
+			int yTarget = target.getY();
+			int xTarget = target.getX();
+
+
+
+			if (isValidMove(this.y-1, this.x)) {
+				fp_atas = Math.abs(this.y-1 - yTarget) + Math.abs(this.x - xTarget);
+			}
+
+			if (isValidMove(this.y, this.x-1)) {
+				fp_kiri = Math.abs(this.y - yTarget) + Math.abs(this.x-1 - xTarget);
+			}
+
+			if (isValidMove(this.y+1, this.x)) {
+				fp_bawah = Math.abs(this.y+1 - yTarget) + Math.abs(this.x - xTarget);
+			}
+
+			if (isValidMove(this.y, this.x+1)) {
+				fp_kanan = Math.abs(this.y - yTarget) + Math.abs(this.x+1 - xTarget);
+			} 
+
+
+			int fp = Math.min(fp_atas, Math.min(fp_kiri, Math.min(fp_bawah, fp_kanan)));
+
+			Random rand = new Random();
+
+			int n = rand.nextInt(2);
+			
+			if (n == 0) {
+				if (fp_atas == fp && !lastMove.equals(MOVE_DOWN)) {
+					return MOVE_UP;
+				}else if (fp_kiri == fp && !lastMove.equals(MOVE_RIGHT)) {
+					return MOVE_LEFT;
+				}else if (fp_bawah == fp && !lastMove.equals(MOVE_UP)) {
+					return MOVE_DOWN;
+				}else if (fp_kanan == fp && !lastMove.equals(MOVE_LEFT)) {
+					return MOVE_RIGHT;
+				}
+			}else if (n == 1) {
+				if (fp_atas == fp && !lastMove.equals(MOVE_DOWN)) {
+					return MOVE_UP;
+				}else if (fp_kanan == fp && !lastMove.equals(MOVE_LEFT)) {
+					return MOVE_RIGHT;
+				}else if (fp_bawah == fp && !lastMove.equals(MOVE_UP)) {
+					return MOVE_DOWN;
+				}else if (fp_kiri == fp && !lastMove.equals(MOVE_RIGHT)) {
+					return MOVE_LEFT;
+				}
+			}
+
+			return STAY;
+
+
+		}
+
+		public GameObject nearestPowerUp(ArrayList<GameObject> powerUps) {
+
+			if (powerUps.size() == 0) {
+				return null;
+			}
+
+			GameObject tempPowerUp = powerUps.get(0);
+			int tempDist = Math.abs(this.y - powerUps.get(0).getY()) + Math.abs(this.x - powerUps.get(0).getX());
+			for (int i = 0; i < powerUps.size() ; i++ ) {
+				int yWall = powerUps.get(i).getY();
+				int xWall = powerUps.get(i).getX();
+
+				int dist = Math.abs(this.y - yWall) + Math.abs(this.x - xWall);
+
+				if (dist < tempDist) {
+					tempPowerUp = powerUps.get(i);
+					tempDist= dist;
+				}
+			}
+
+			return tempPowerUp;
+		}
+
+
+		public DestructibleWall nearestWall(ArrayList<DestructibleWall> walls) {
+
+			if (walls.size() == 0) {
+				return null;
+			}
+
+			DestructibleWall tempWall = walls.get(0);
+			int tempDist = Math.abs(this.y - walls.get(0).getY()) + Math.abs(this.x - walls.get(0).getX());
+			for (int i = 0; i < walls.size() ; i++ ) {
+				int yWall = walls.get(i).getY();
+				int xWall = walls.get(i).getX();
+
+				int dist = Math.abs(this.y - yWall) + Math.abs(this.x - xWall);
+
+				if (dist <= tempDist) {
+					if (dist == tempDist) {
+						if (walls.get(i).getPowerUpInfo().equals(POWER_B) || walls.get(i).getPowerUpInfo().equals(POWER_P)) {
+
+						} else {
+							tempWall = walls.get(i);
+							tempDist = dist;
+						}
+					}else {
+						tempWall = walls.get(i);
+						tempDist = dist;
+					}
+				}
+			}
+
+			return tempWall;
 		}
 
 		public String getOutput() {
@@ -189,7 +439,6 @@ public class AI_1506689143_Rozi {
 					} else {
 
 						GameObject node = this.find(tile[j], i, j);
-
 						ArrayList<GameObject> multipleObject = new ArrayList<GameObject>();
 						multipleObject.add(node);
 
@@ -633,6 +882,7 @@ public class AI_1506689143_Rozi {
 
 				GameProcess game = ai.new GameProcess(map);
 				game.start();
+				ai.lastMove = game.getOutput();
 				System.out.println(game.getOutput());
 
 

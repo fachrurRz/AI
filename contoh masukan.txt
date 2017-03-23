@@ -13,6 +13,25 @@ BOARD 5 7
 END
 
 
+TURN 0
+PLAYER 2
+P0 AI_1506689143_Rozi Bomb:1/1 Range:1 Alive 0
+P1 TegarAI1 Bomb:1/1 Range:1 Alive 0
+BOARD 11 13
+[  0;B25  ][     ][ XXX ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][ XXX ][     ][  1  ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[ XXX ][ XXX ][     ][ XPX ][ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XXX ][ XXX ]
+[ XBX ][ ### ][ XBX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][ XBX ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[     ][ ### ][ XPX ][ ### ][ XPX ][ ### ][ XBX ][ ### ][ XPX ][ ### ][ XPX ][ ### ][     ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[ XBX ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XBX ][ ### ][ XBX ]
+[ XXX ][ XXX ][     ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ][ XPX ][     ][ XXX ][ XXX ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[     ][     ][ XXX ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][ XXX ][     ][     ]
+END
+
+
 TURN 11
 PLAYER 2
 P0 ContohAI1 Bomb:0/1 Range:1 Alive 10
@@ -37,9 +56,9 @@ PLAYER 2
 P0 TegarAI1 Bomb:2/2 Range:2 Alive 260
 P1 AI_1506689143_Rozi Bomb:1/1 Range:1 Alive 0
 BOARD 11 13
-[     ][     ][     ][     ][     ][     ][ +B  ][ XXX ][ XXX ][     ][ XXX ][     ][     ]
+[     ][     ][     ][ B25 ][     ][     ][ +B  ][ XXX ][ XXX ][     ][ +B;B51 ][     ][  1  ]
 [     ][ ### ][     ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
-[     ][     ][     ][     ][  1  ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XXX ][ XXX ]
+[     ][     ][     ][     ][     ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XXX ][ XXX ]
 [     ][ ### ][ +B  ][ ### ][ B25 ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][ XBX ]
 [     ][     ][     ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
 [  0  ][ ### ][ XPX ][ ### ][ XPX ][ ### ][ XBX ][ ### ][ XPX ][ ### ][ XPX ][ ### ][     ]
@@ -53,3 +72,61 @@ END
 ACTION 203
 P0: MOVE RIGHT
 P1: MOVE LEFT
+
+
+
+TURN 16
+PLAYER 2
+P0 AI_1506689143_Rozi Bomb:0/1 Range:1 Alive 10
+P1 TegarAI1 Bomb:1/1 Range:1 Alive 10
+BOARD 11 13
+[     ][     ][     ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][     ][  1  ][     ]
+[0;B13][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[ XXX ][ XXX ][     ][ XPX ][ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XXX ][ XXX ]
+[ XBX ][ ### ][ XBX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][ XBX ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[     ][ ### ][ XPX ][ ### ][ XPX ][ ### ][ XBX ][ ### ][ XPX ][ ### ][ XPX ][ ### ][     ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[ XBX ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XBX ][ ### ][ XBX ]
+[ XXX ][ XXX ][     ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ][ XPX ][     ][ XXX ][ XXX ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[     ][     ][ XXX ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][ XXX ][     ][     ]
+END
+
+
+TURN 29
+PLAYER 2
+P0 AI_1506689143_Rozi Bomb:0/1 Range:1 Alive 20
+P1 TegarAI1 Bomb:1/1 Range:1 Alive 20
+BOARD 11 13
+[     ][     ][  0  ][ B11 ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][  1  ][     ][     ][ F2  ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][ F2  ]
+[     ][ XXX ][     ][ XPX ][ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XXX ][ F2  ]
+[ XBX ][ ### ][ XBX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][ XBX ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[     ][ ### ][ XPX ][ ### ][ XPX ][ ### ][ XBX ][ ### ][ XPX ][ ### ][ XPX ][ ### ][     ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[ XBX ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XBX ][ ### ][ XBX ]
+[ XXX ][ XXX ][     ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ][ XPX ][     ][ XXX ][ XXX ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[     ][     ][ XXX ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][ XXX ][     ][     ]
+END
+
+
+TURN 31
+PLAYER 2
+P0 AI_1506689143_Rozi Bomb:0/1 Range:1 Alive 20
+P1 TegarAI2 Bomb:0/1 Range:1 Alive 20
+BOARD 11 13
+[     ][     ][     ][ B12 ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][  1  ][ B11 ][     ][     ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][  0  ]
+[     ][ XXX ][     ][ XPX ][ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][     ][ XBX ][     ]
+[ XBX ][ ### ][ XBX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][ XBX ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[     ][ ### ][ XPX ][ ### ][ XPX ][ ### ][ XBX ][ ### ][ XPX ][ ### ][ XPX ][ ### ][     ]
+[ XXX ][     ][ XXX ][     ][ XXX ][ XBX ][ XPX ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ]
+[ XBX ][ ### ][ XPX ][ ### ][     ][ ### ][ XPX ][ ### ][     ][ ### ][ XBX ][ ### ][ XBX ]
+[ XXX ][ XXX ][     ][ XBX ][ XXX ][     ][ XXX ][     ][ XXX ][ XPX ][     ][ XXX ][ XXX ]
+[     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ][ ### ][ XXX ][ ### ][     ]
+[     ][     ][ XXX ][     ][ XXX ][ XXX ][ XBX ][ XXX ][ XXX ][     ][ XXX ][     ][     ]
+END
