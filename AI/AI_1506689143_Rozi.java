@@ -1,13 +1,45 @@
 import java.util.*;
 import java.io.*;
 
+/**
+ * class AI_1506689143
+ * 
+ * this class implemented bomberman AI with DLS algorithm
+ * 
+ */
 public class AI_1506689143_Rozi {
 
+	/**
+	 * @var PLAYER is the AI
+	 * @var NPM is the AI id
+	 * @var ENEMY is enemy type object
+	 * @var BOMB is bomb type object
+	 * @var FLARE is flare type object
+	 * @var POWER_B is power up +B info
+	 * @var POWER_P is power up +P info
+	 * @var UNDETRUCTIBLE_WALL is undetructible wall object type
+	 * @var DETRUCTIBLE_WALL is detructible wall object type
+	 * @var LAND is free space object type
+	 *
+	 * @var DANGER is danger status
+	 * @var SAFE is safe status
+	 * @var ARRIVE is status when AI arrive at the target
+	 *
+	 * @var MOVE_UP is command to move up
+	 * @var MOVE_LEFT is command to move left
+	 * @var MOVE_DOWN is command to move down
+	 * @var MOVE_RIGHT is command to move right
+	 * @var DROP_BOMB is command to drop bomb
+	 * @var STAY is command to stay
+	 *
+	 * @var MAX is maximum fitness function
+	 */
+	public static final boolean DEBUG_OUTPUT_ENABLE = false;
 	protected final String PLAYER = "Player";
 	protected final String NPM = "AI_1506689143_Rozi";
 	protected final String ENEMY = "Enemy";
 	protected final String BOMB = "Bomb";
-	protected final String FLARE = "DOWNare";
+	protected final String FLARE = "Flare";
 	protected final String POWER_B = "Power Up Bomb";
 	protected final String POWER_P = "Power Up Power";
 	protected final String UNDETRUCTIBLE_WALL = "Undetructible_Wall";
@@ -18,7 +50,6 @@ public class AI_1506689143_Rozi {
 	protected final String SAFE = "Safe";
 	protected final String ARRIVE = "Arrive";
 
-
 	protected final String MOVE_UP = ">> MOVE UP";
 	protected final String MOVE_LEFT = ">> MOVE LEFT";
 	protected final String MOVE_DOWN = ">> MOVE DOWN";
@@ -28,21 +59,37 @@ public class AI_1506689143_Rozi {
 
 	protected final int MAX = 9999;
 	
-
+	/**
+	 * @var condition is current AI condition
+	 * @var player index is index AI in Player[]
+	 * @var last move store the last command of AI
+	 * @var turn is counter turn
+	 */
 	protected String condition = SAFE;
 	protected int playerIndex = 0;
 	protected String lastMove = STAY;
-
 	protected int turn = 0;
 	
 
-
+	/**
+	 * class to process every AI movement 
+	 */
 	class GameProcess {
+		/**
+		 * @var map is the bomberman board object
+		 * @var output is the command to print
+		 * @var y is player ordinate location
+		 * @var x is player axis location
+		 */
 		private Map map;
 		private String output;
 		private int y;
 		private int x;
 
+		/**
+		 * constructor
+		 * @param  map [the bomberman board object]
+		 */
 		public GameProcess(Map map) {
 			this.map = map;
 			this.output = STAY;
@@ -50,14 +97,26 @@ public class AI_1506689143_Rozi {
 			x = this.map.playerX;
 		}
 
+		/**
+		 * method to start game processing
+		 * 
+		 */
 		public void start() {
-
-
 			Node[][] tile = this.map.getObjects();
 			GameObject wall = this.nearestWall(this.map.getWalls());
 			GameObject powerUp = this.nearestPowerUp(this.map.getPowerUps());
 
+			// compare the distance of powerup and wall
+			if (compareDist(powerUp, wall) < 0) {
+				turn = 2;
+			} else {
+				turn = 0;
+			}
+
+			// fp is fitness funtion on [y][x] location
 			int fp = this.fitnessFunction(tile, y, x, 0);
+
+			// if that location is dangerous
 			if (fp < 0) {
 				if (isValidMove(y-1, x)) {
 					int fp_atas = this.fitnessFunction(tile, y-1, x, 3);
@@ -93,12 +152,13 @@ public class AI_1506689143_Rozi {
 
 			} else {
 
+				String tempOutput = this.moveToTarget(wall);
 
+				// start searh wall
 				if (turn == 0) {
-
-					String tempOutput = this.moveToTarget(wall);
 					if (condition == ARRIVE) {
 						turn = 1;
+						this.output = DROP_BOMB;
 						condition = SAFE;
 					} else {
 						this.output = this.moveToTarget(wall);
@@ -106,16 +166,20 @@ public class AI_1506689143_Rozi {
 
 					return;
 
+				// start escape from bomb
 				} else if (turn == 1) {
 
 					int fp_atas = 0;
 					int fp_kiri = 0;
 					int fp_bawah = 0;
 					int fp_kanan = 0;
+
+
 					if (isValidMove(y-1, x)) {
 						fp_atas = this.fitnessFunction(tile, y-1, x, 3);
 
 					}
+
 					if (isValidMove(y, x-1)) {
 						fp_kiri = this.fitnessFunction(tile, y, x-1, 4);
 					}
@@ -130,6 +194,7 @@ public class AI_1506689143_Rozi {
 
 					if ((fp_atas + fp_kiri + fp_bawah + fp_kanan) < 0) {
 						this.output = STAY;
+						turn = 0;
 						return;
 					} else {
 						this.output = DROP_BOMB;
@@ -137,15 +202,59 @@ public class AI_1506689143_Rozi {
 						return;
 					}
 
+
+				// start search power up
+				} else if (turn == 2) {
+					if (powerUp == null) {
+						turn = 0;
+					} else {
+						this.output = this.moveToTarget(powerUp);
+					}
 				}
 			}
-
-
-
 			
 		}
 
+		/**
+		 * compare distace of two game object wth the AI
+		 * @param  a [game object a]
+		 * @param  b [game object b]
+		 * @return   []
+		 */
+		public int compareDist(GameObject a, GameObject b) {
 
+			if (a == null) {
+				return 1;
+			}
+
+			if (b == null) {
+				return -1;
+			}
+			int yA = a.getY();
+			int xA = a.getX();
+
+			int yB = b.getY();
+			int xB = b.getX();
+
+			int distToA = Math.abs(this.y - yA) + Math.abs(this.x - xA);
+			int distToB = Math.abs(this.y - yB) + Math.abs(this.x - xB);
+
+			if (distToA <= distToB) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+
+
+		/**
+		 * find fitness funtion at the point
+		 * @param  tile   [objects2 in bomberman board]
+		 * @param  y      [y location]
+		 * @param  x      [x location]
+		 * @param  except [flag to find fp except that way]
+		 * @return        [fitness point]
+		 */
 		public int fitnessFunction(Node[][] tile, int y, int x, int except) {
 			int fp_atas = 0;
 			int fp_kiri = 0;
@@ -259,6 +368,12 @@ public class AI_1506689143_Rozi {
 			return fp;
 		}
 
+		/**
+		 * check the move valid or not
+		 * @param  y [y location]
+		 * @param  x [x location]
+		 * @return   [true if valid, else if invalid]
+		 */
 		public boolean isValidMove(int y, int x) {
 			if (y < 0 || y >= this.map.getObjects().length || x < 0 || x >= this.map.getObjects()[0].length ) {
 				return false;
@@ -279,6 +394,11 @@ public class AI_1506689143_Rozi {
 			return true;
 		}
 
+		/**
+		 * find best movement to a target
+		 * @param  target [game object target]
+		 * @return        [String movement]
+		 */
 		public String moveToTarget(GameObject target) {
 
 			int fp_atas = MAX;
@@ -293,23 +413,37 @@ public class AI_1506689143_Rozi {
 
 			if (isValidMove(this.y-1, this.x)) {
 				fp_atas = Math.abs(this.y-1 - yTarget) + Math.abs(this.x - xTarget);
+				if (this.fitnessFunction(this.map.getObjects(), y-1, x, 3) < 0) {
+					fp_atas = MAX;
+				}
 			}
 
 			if (isValidMove(this.y, this.x-1)) {
 				fp_kiri = Math.abs(this.y - yTarget) + Math.abs(this.x-1 - xTarget);
+				if (this.fitnessFunction(this.map.getObjects(), y, x-1, 4) < 0) {
+					fp_kiri = MAX;
+				}
 			}
 
 			if (isValidMove(this.y+1, this.x)) {
 				fp_bawah = Math.abs(this.y+1 - yTarget) + Math.abs(this.x - xTarget);
+				if (this.fitnessFunction(this.map.getObjects(), y+1, x, 1) < 0) {
+					fp_bawah = MAX;
+				}
 			}
 
 			if (isValidMove(this.y, this.x+1)) {
 				fp_kanan = Math.abs(this.y - yTarget) + Math.abs(this.x+1 - xTarget);
+				if (this.fitnessFunction(this.map.getObjects(), y, x+1, 2) < 0) {
+					fp_kanan = MAX;
+				}
 			} 
 
 
 			int fp = Math.min(fp_atas, Math.min(fp_kiri, Math.min(fp_bawah, fp_kanan)));
 
+
+			// random the sequence
 			Random rand = new Random();
 
 			int n = rand.nextInt(2);
@@ -341,6 +475,12 @@ public class AI_1506689143_Rozi {
 
 		}
 
+
+		/**
+		 * find nearest power up from player
+		 * @param  powerUps [array list of objects]
+		 * @return          [nearest power Ups]
+		 */
 		public GameObject nearestPowerUp(ArrayList<GameObject> powerUps) {
 
 			if (powerUps.size() == 0) {
@@ -364,7 +504,11 @@ public class AI_1506689143_Rozi {
 			return tempPowerUp;
 		}
 
-
+		/**
+		 * find nearest wall
+		 * @param  walls [array list of wall]
+		 * @return       [nearest wall]
+		 */
 		public DestructibleWall nearestWall(ArrayList<DestructibleWall> walls) {
 
 			if (walls.size() == 0) {
@@ -397,11 +541,26 @@ public class AI_1506689143_Rozi {
 			return tempWall;
 		}
 
+		/**
+		 * getter output
+		 * @return [output command]
+		 */
 		public String getOutput() {
 			return this.output;
 		}
 	}
+
+	/**
+	 * class to represent bomberman board int node of game object
+	 */
 	class Map {
+
+		/**
+		 * @var objects is all object in bomberman board
+		 * @var map is string input from board
+		 * @var detructibleWalls is array list of wall
+		 * @var powerUps is array list of power up
+		 */
 		private Node[][] objects;
 		private String[] map;
 		private Player[] players;
@@ -410,6 +569,14 @@ public class AI_1506689143_Rozi {
 		protected int playerY = 0;
 		protected int playerX = 0;
 
+		/**
+		 * constructor
+		 * @param  map     [bomberman board]
+		 * @param  players [players object]
+		 * @param  row     [number of row]
+		 * @param  column  [number of column]
+		 * @return         [description]
+		 */
 		public Map(String[] map, Player[] players, int row, int column) {
 			this.map = map;
 			this.objects = new Node[row][column];
@@ -418,6 +585,9 @@ public class AI_1506689143_Rozi {
 			this.powerUps = new ArrayList<GameObject>();
 		}
 
+		/**
+		 * render input board into bomberman object
+		 */
 		public void render() {
 			for (int i = 0; i < this.map.length; i++ ) {
 				String mainString = this.map[i];
@@ -449,6 +619,13 @@ public class AI_1506689143_Rozi {
 			}
 		}
 
+		/**
+		 * find multiple object in one node
+		 * @param  type [types of objects]
+		 * @param  y    [y location]
+		 * @param  x    [x location]
+		 * @return      [arraylist of game object]
+		 */
 		public ArrayList<GameObject> findMultipleObject(String[] type, int y, int x) {
 
 			ArrayList<GameObject> multipleObject = new ArrayList<GameObject>();
@@ -461,6 +638,13 @@ public class AI_1506689143_Rozi {
 
 		}
 
+		/**
+		 * find an object in node 
+		 * @param  type [type of object]
+		 * @param  y    [y location]
+		 * @param  x    [x location]
+		 * @return      [game object]
+		 */
 		public GameObject find(String type, int y, int x) {
 			if (type.length() == 0) {
 				
@@ -544,43 +728,94 @@ public class AI_1506689143_Rozi {
 
 		}
 
+		/**
+		 * check if a string is numeric or not
+		 * @param  s [String input]
+		 * @return   [true if string is numeric, false if not numeric]
+		 */
 		private boolean isNumeric(String s) {
 			return s.matches("[-+]?\\d*\\.?\\d+");
 		}
 
+		/**
+		 * get all objects in board
+		 * @return [arrays of objects]
+		 */
 		public Node[][] getObjects(){
 			return this.objects;
 		}
 
+		/**
+		 * setter
+		 * @param objects [description]
+		 */
 		public void setObjects(Node[][] objects) {
 			this.objects = objects;
 		}
 
+		/**
+		 * getter
+		 * @return [description]
+		 */
 		public ArrayList<DestructibleWall> getWalls(){
 			return this.detructibleWalls;
 		}
 
+		/**
+		 * getter
+		 * @return [description]
+		 */
 		public ArrayList<GameObject> getPowerUps(){
 			return this.powerUps;
 		}
 
 	}
 
-	class Node {
+	/**
+	 * class to encapsulate game object into arraylist
+	 */
+	class Node { 
+		/**
+		 * @var node is arraylist of game object
+		 */
 		protected ArrayList<GameObject> node;
 		
+		/**
+		 * constructor
+		 * @param  node [node]
+		 * @return      [description]
+		 */
 		public Node(ArrayList<GameObject> node) {
 			this.node = node;
 		}
 	}
 
+	/**
+	 * class to represent all object in bomberman board
+	 */
 	class GameObject {
+		/**
+		 * @var type is type of the object
+		 * @var y is y location
+		 * @var x is x location
+		 * @var isPassable is flag passable
+		 * @var name is object name
+		 */
 		private String type;
 		private int y;
 		private int x;
 		private boolean isPassable;
 		private String name;
 
+		/**
+		 * constructor
+		 * @param  type       [description]
+		 * @param  y          [description]
+		 * @param  x          [description]
+		 * @param  isPassable [description]
+		 * @param  name       [description]
+		 * @return            [description]
+		 */
 		public GameObject(String type, int y, int x, boolean isPassable, String name) {
 			this.type = type;
 			this.y = y;
@@ -588,43 +823,82 @@ public class AI_1506689143_Rozi {
 			this.isPassable = isPassable;
 			this.name = name;
 		}
-
+		/**
+		 * getter type
+		 * @return [description]
+		 */
 		public String getType() {
 			return type;
 		}
 
+		/**
+		 * setter type
+		 * @param type [description]
+		 */
 		public void setType(String type) {
 			this.type = type;
 		}
 
+		/**
+		 * setter y
+		 * @return [description]
+		 */
 		public int getY() {
 			return y;
 		}
 
+		/**
+		 * setter y
+		 * @param y [description]
+		 */
 		public void setY(int y) {
 			this.y = y;
 		}
 
+		/**
+		 * getter x
+		 * @return [description]
+		 */
 		public int getX() {
 			return x;
 		}
 
+		/**
+		 * setter x
+		 * @param x [description]
+		 */
 		public void setX(int x) {
 			this.x = x;
 		}
 
+		/**
+		 * getter isPassable
+		 * @return [description]
+		 */
 		public boolean isPassable() {
 			return isPassable;
 		}
 
+		/**
+		 * setter isPassable
+		 * @param passable [description]
+		 */
 		public void setPassable(boolean passable) {
 			isPassable = passable;
 		}
 
+		/**
+		 * getter name
+		 * @return [description]
+		 */
 		public String getName() {
 			return name;
 		}
 
+		/**
+		 * setter name
+		 * @param name [description]
+		 */
 		public void setName(String name) {
 			this.name = name;
 		}
@@ -642,7 +916,19 @@ public class AI_1506689143_Rozi {
 
 	}
 
+
+	/**
+	 * class represent player in bomberman board
+	 */
 	class Player extends GameObject {
+		/**
+		 * @var index is player index in input
+		 * @var bombCount is bomb counter of a player
+		 * @var bombMax is max bomb
+		 * @var bombPower is bomb range
+		 * @var status is status of a player
+		 * @var score is player score
+		 */
 		private int index;
 		private int bombCount;
 		private int bombMax;
@@ -650,6 +936,9 @@ public class AI_1506689143_Rozi {
 		private String status;
 		private int score;
 
+		/**
+		 * constructor
+		 */
 		public Player (String type, int y, int x, boolean isPassable, String name, int index, int bombCount, int bombMax, int bombPower, String status ,int score) {
 			super(type, y, x, isPassable, name);
 			this.index = index;
@@ -661,6 +950,9 @@ public class AI_1506689143_Rozi {
 
 		}
 
+		/**
+		 * zero constructor
+		 */
 		public Player() {
 			super("None", -1, -1, true, "None");
 			this.index = -1;
@@ -671,50 +963,98 @@ public class AI_1506689143_Rozi {
 			this.score = -1;
 		}
 
+		/**
+		 * getter index
+		 * @return [index]
+		 */
 		public int getIndex() {
 			return this.index;
 		}
 
+		/**
+		 * setter index
+		 * @param index [description]
+		 */
 		public void setIndex(int index) {
 			this.index = index;
 		}
 
+		/**
+		 * getter bomb count
+		 * @return [bomb count]
+		 */
 		public int getBombCount() {
 			return this.bombCount;
 		}
 
+		/**
+		 * getter bombCount
+		 * @param bombCount [description]
+		 */
 		public void setBombCount(int bombCount) {
 			this.bombCount = bombCount;
 		}
 
+		/**
+		 * getter max bomb max
+		 * @return [description]
+		 */
 		public int getBombMax() {
 			return this.bombMax;
 		}
 
+		/**
+		 * setter bomb max
+		 * @param bombMax [description]
+		 */
 		public void setBombMax(int bombMax) {
 			this.bombMax = bombMax;
 		}
 
+		/**
+		 * getter bomb range
+		 * @return [description]
+		 */
 		public int getBombPower() {
 			return this.bombPower;
 		}
 
+		/**
+		 * setter bomb range
+		 * @param bombPower [description]
+		 */
 		public void setBombPower(int bombPower) {
 			this.bombPower = bombPower;
 		}
 
+		/**
+		 * getter status
+		 * @return [description]
+		 */
 		public String getStatus() {
 			return this.status;
 		}
 
+		/**
+		 * setter status
+		 * @param status [description]
+		 */
 		public void setStatus(String status) {
 			this.status = status;
 		}
 
+		/**
+		 * getter score
+		 * @return [description]
+		 */
 		public int getScore() {
 			return this.score;
 		}
 
+		/**
+		 * setter status
+		 * @param score [description]
+		 */
 		public void setScore(int score) {
 			this.score = score;
 		}
@@ -726,28 +1066,54 @@ public class AI_1506689143_Rozi {
 	}
 
 	
+	/**
+	 * class represent bomb in bomberman board
+	 */
 	class Bomb extends GameObject {
+		/**
+		 * @var bombPower is bomb range
+		 * @var bombTime is bomb timer
+		 */
 		private int bombPower;
 		private int bombTime;
 
+		/**
+		 * constructor
+		 */
 		public Bomb(String type, int y, int x, boolean isPassable, String name, int bombPower, int bombTime) {
 			super(type, y, x, isPassable, name);
 			this.bombPower = bombPower;
 			this.bombTime = bombTime;
 		}
 
+		/**
+		 * getter bomb range
+		 * @return [description]
+		 */
 		public int getBombPower() {
 			return bombPower;
 		}
 
+		/**
+		 * setter bomb range
+		 * @param bombPower [description]
+		 */
 		public void setBombPower(int bombPower) {
 			this.bombPower = bombPower;
 		}
 
+		/**
+		 * getter bomb time
+		 * @return [description]
+		 */
 		public int getBombTime() {
 			return bombTime;
 		}
 
+		/**
+		 * setter bomb time
+		 * @param bombTime [description]
+		 */
 		public void setBombTime(int bombTime) {
 			this.bombTime = bombTime;
 		}
@@ -761,17 +1127,31 @@ public class AI_1506689143_Rozi {
 
 
 	class Flare extends GameObject {
+		/**
+		 * @var flareTime is time of flare
+		 */
 		private int flareTime;
 
+		/**
+		 * comstructor
+		 */
 		public Flare(String type, int y, int x, boolean isPassable, String name, int flareTime) {
 			super(type, y, x, isPassable, name);
 			this.flareTime = flareTime;
 		}
 
+		/**
+		 * getter flare time
+		 * @return [description]
+		 */
 		public int getFlareTime() {
 			return flareTime;
 		}
 
+		/**
+		 * setter flare time
+		 * @param flareTime [description]
+		 */
 		public void setFlareTime(int flareTime) {
 			this.flareTime = flareTime;
 		}
@@ -783,18 +1163,35 @@ public class AI_1506689143_Rozi {
 
 	}
 
+	/**
+	 * class represent detructible wall in bomberman board
+	 */
 	class DestructibleWall extends GameObject {
+		/**
+		 * @var powerUpInfo is power up type
+		 */
 		private String powerUpInfo;
 
+		/**
+		 * costructor
+		 */
 		public DestructibleWall(String type, int y, int x, boolean isPassable, String name, String powerUpInfo) {
 			super(type, y, x, isPassable, name);
 			this.powerUpInfo = powerUpInfo;
 		}
 
+		/**
+		 * getter power up type
+		 * @return [description]
+		 */
 		public String getPowerUpInfo(){
 			return this.powerUpInfo;
 		}
 
+		/**
+		 * setter power up type
+		 * @param powerUpInfo [description]
+		 */
 		public void setPowerUpInfo(String powerUpInfo) {
 			this.powerUpInfo = powerUpInfo;
 		}
@@ -806,7 +1203,9 @@ public class AI_1506689143_Rozi {
 	}
 
 
-
+	/**
+	 * main program
+	 */
 	public static void main(String[] args) throws Exception {
 
 		AI_1506689143_Rozi ai = new AI_1506689143_Rozi();
@@ -816,6 +1215,7 @@ public class AI_1506689143_Rozi {
 
 			while(true) {
 
+				// main information of board
 				String input = "";
 				Map map = null;
 				int turn = 0;
@@ -824,6 +1224,7 @@ public class AI_1506689143_Rozi {
 				int rowNum = 0;
 				int columnNum = 0;
 
+				// parse the board
 				while (!input.equals("END")) {
 
 					input = bf.readLine();
@@ -865,6 +1266,7 @@ public class AI_1506689143_Rozi {
 
 						players[index] = player;
 
+					// parse the board
 					} else if (inputArray[0].equals("BOARD")) {
 						rowNum = Integer.parseInt(inputArray[1]);
 						columnNum = Integer.parseInt(inputArray[2]);
@@ -884,9 +1286,6 @@ public class AI_1506689143_Rozi {
 				game.start();
 				ai.lastMove = game.getOutput();
 				System.out.println(game.getOutput());
-
-
-
 
 			}
 
